@@ -8,8 +8,8 @@ llama_model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path
                                                    quantization_config = BitsAndBytesConfig(load_in_4bit = True,
                                                                                             bnb_4bit_compute_dtype = getattr(torch, "float16"),
                                                                                             bnb_4bit_quant_type = "nf4"))
-llama_model.config.use_cache = False
-llama_model.config.pretraining_tp = 1
+llama_model.config.use_cache = False #Dont store cache memory of previous layers(hence faster)  
+llama_model.config.pretraining_tp = 1 #Speeds up computation by decreasing linear computation accuracy
 
 llama_tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path = "aboonaji/llama2finetune-v2", trust_remote_code = True)
 llama_tokenizer.pad_token = llama_tokenizer.eos_token
@@ -26,7 +26,7 @@ llama_sft_trainer = SFTTrainer(model = llama_model,
 
 llama_sft_trainer.train()
 
-user_prompt = "Please tell me about Ascariasis"
+user_prompt = "Tell me about cancer"
 text_generation_pipeline = pipeline(task = "text-generation", model = llama_model, tokenizer = llama_tokenizer, max_length = 300)
 model_answer = text_generation_pipeline(f"<s>[INST] {user_prompt} [/INST]")
 print(model_answer[0]['generated_text'])
